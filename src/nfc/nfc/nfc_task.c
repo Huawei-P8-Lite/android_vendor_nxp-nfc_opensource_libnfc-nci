@@ -158,7 +158,9 @@ void nfc_process_timer_evt (void)
                 nfc_cb.i2c_data_t.nci_cmd_channel_busy = 0;
                 nfc_cb.i2c_data_t.data_stored = 0;
             }
+#if(NFC_NXP_ESE == TRUE)
             nfc_ncif_credit_ntf_timeout();
+#endif
             break;
         }
 #if(NXP_ESE_DUAL_MODE_PRIO_SCHEME == NXP_ESE_WIRED_MODE_RESUME)

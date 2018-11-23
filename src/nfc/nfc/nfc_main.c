@@ -455,7 +455,7 @@ void nfc_main_handle_hal_evt (tNFC_HAL_EVT_MSG *p_msg)
                 if (p_msg->status == HAL_NFC_STATUS_OK)
                 {
                     nfc_enabled (NCI_STATUS_OK, nfc_cb.p_nci_init_rsp);
-#if(NXP_EXTNS == TRUE)
+#if(NXP_EXTNS == FALSE)
                     /*
                      * reading requred EEPROM config vlaues from HAL
                      * and updating libnfc structure.

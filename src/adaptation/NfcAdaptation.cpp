@@ -377,7 +377,9 @@ void NfcAdaptation::InitializeHalDeviceContext ()
     mHalEntryFuncs.core_initialized = HalCoreInitialized;
     mHalEntryFuncs.write = HalWrite;
 #if(NXP_EXTNS == TRUE)
+    ALOGD ("mHalEntryFuncs.ioctl = HalIoctl;1");
     mHalEntryFuncs.ioctl = HalIoctl;
+    ALOGD ("mHalEntryFuncs.ioctl = HalIoctl;2");
 #endif
     mHalEntryFuncs.prediscover = HalPrediscover;
     mHalEntryFuncs.control_granted = HalControlGranted;
@@ -526,7 +528,7 @@ typedef struct {
     struct nfc_nci_device nci_device;
 
     /* Local definitions */
-    int(*ioctl)(const struct nfc_nci_device *p_dev, long arg, void *p_data);
+    int(*ioctl)(const struct nfc_nci_device *p_dev, void *p_data, long arg);
     int(*check_fw_dwnld_flag)(const struct nfc_nci_device *p_dev, uint8_t* param1);
 
 } pn547_dev_t;
@@ -552,7 +554,8 @@ int NfcAdaptation::HalIoctl (long arg, void* p_data)
     if (mHalDeviceContext)
     {
         pn547_dev_t *dev = (pn547_dev_t*)mHalDeviceContext;
-        return (dev->ioctl (mHalDeviceContext, arg, p_data));
+        ALOGD ("pn547_dev_t *dev = (pn547_dev_t*)mHalDeviceContext;");
+        return (dev->ioctl (mHalDeviceContext, p_data, arg));
     }
     return -1;
 }
@@ -706,7 +709,7 @@ void NfcAdaptation::DownloadFirmware ()
 {
     const char* func = "NfcAdaptation::DownloadFirmware";
     ALOGD ("%s: enter", func);
-#if (NXP_EXTNS == TRUE)
+#if (NXP_EXTNS == FALSE)
     static UINT8 cmd_reset_nci[] = {0x20,0x00,0x01,0x00};
     static UINT8 cmd_init_nci[]  = {0x20,0x01,0x00};
     static UINT8 cmd_reset_nci_size = sizeof(cmd_reset_nci) / sizeof(UINT8);
@@ -723,7 +726,7 @@ void NfcAdaptation::DownloadFirmware ()
     HalOpen (HalDownloadFirmwareCallback, HalDownloadFirmwareDataCallback);
     mHalOpenCompletedEvent.wait ();
     mHalOpenCompletedEvent.unlock();
-#if (NXP_EXTNS == TRUE)
+#if (NXP_EXTNS == FALSE)
     /* Send a CORE_RESET and CORE_INIT to the NFCC. This is required because when calling
      * HalCoreInitialized, the HAL is going to parse the conf file and send NCI commands
      * to the NFCC. Hence CORE-RESET and CORE-INIT have to be sent prior to this.
@@ -802,7 +805,7 @@ void NfcAdaptation::DownloadFirmware ()
 #endif
     ALOGD ("%s: try close HAL", func);
     HalClose ();
-#if (NXP_EXTNS == TRUE)
+#if (NXP_EXTNS == FALSE)
     mHalCloseCompletedEvent.lock ();
     if (SIGNAL_NONE == isSignaled) {
         mHalCloseCompletedEvent.wait ();

@@ -2358,6 +2358,7 @@ UINT8 nfc_hal_nfcc_init(UINT8 **pinit_rsp)
 *******************************************************************************/
 void nfc_ncif_proc_init_rsp (BT_HDR *p_msg)
 {
+    NFC_TRACE_DEBUG0("nfc_ncif_proc_init_rsp");
     UINT8 *p, status;
     tNFC_CONN_CB * p_cb = &nfc_cb.conn_cb[NFC_RF_CONN_ID];
 #if (NXP_EXTNS == TRUE)
@@ -2376,7 +2377,7 @@ void nfc_ncif_proc_init_rsp (BT_HDR *p_msg)
     p = (UINT8 *) (p_msg + 1) + p_msg->offset;
     /* handle init params in nfc_enabled */
     status   = *(p + NCI_MSG_HDR_SIZE);
-#if(NXP_EXTNS == TRUE)
+#if(NXP_EXTNS == FALSE)
     if(NCI_STATUS_OK == status)
     {
 #if(NXP_NFCC_MW_RCVRY_BLK_FW_DNLD == TRUE)
@@ -2424,7 +2425,7 @@ void nfc_ncif_proc_init_rsp (BT_HDR *p_msg)
     /* TODO To be removed after 553 bringup */
     fw_mw_ver_status = NCI_STATUS_OK;
     if (status == NCI_STATUS_OK
-#if(NXP_EXTNS == TRUE)
+#if(NXP_EXTNS == FALSE)
             &&
             fw_status == NCI_STATUS_OK
             &&
@@ -2442,7 +2443,7 @@ void nfc_ncif_proc_init_rsp (BT_HDR *p_msg)
 #endif
         p_cb->id            = NFC_RF_CONN_ID;
         p_cb->act_protocol  = NCI_PROTOCOL_UNKNOWN;
-#if(NXP_EXTNS == TRUE)
+#if(NXP_EXTNS == FALSE)
         retry_cnt = 0;
 #endif
         nfc_set_state (NFC_STATE_W4_POST_INIT_CPLT);
@@ -2451,7 +2452,7 @@ void nfc_ncif_proc_init_rsp (BT_HDR *p_msg)
         nfc_cb.p_hal->core_initialized (p);
     }
 
-#if(NXP_EXTNS == TRUE)
+#if(NXP_EXTNS == FALSE)
     /*Recovery is added in case of corrupted init rsp is received
      * eg: 400119 - only 3 bytes are received. In this case since the
      * rsp buffer[3] is status and the value is 0x00 because of memset for the rsp buffer
@@ -2461,16 +2462,18 @@ void nfc_ncif_proc_init_rsp (BT_HDR *p_msg)
             fw_status != NCI_STATUS_OK &&
             NCI_STATUS_OK == fw_mw_ver_status)
     {
+        NFC_TRACE_DEBUG0("GKI_FREEBUF1");
         GKI_send_event (NFC_TASK, NFC_TASK_EVT_TRANSPORT_READY);
         GKI_freebuf (p_msg);
     }
 #endif
     else
     {
-#if(NXP_EXTNS == TRUE)
+#if(NXP_EXTNS == FALSE)
         status = NCI_STATUS_FAILED;
         retry_cnt = 0;
 #endif
+        NFC_TRACE_DEBUG0("GKI_FREEBUF2");
         nfc_enabled (status, NULL);
         GKI_freebuf (p_msg);
     }

@@ -184,9 +184,10 @@
 
 #define NCI_VERSION_0_F             0x0F
 #define NCI_VERSION_1_0             0x10
+#define NCI_VERSION_1_1             0x11
 
 #ifndef NCI_VERSION
-#define NCI_VERSION                 NCI_VERSION_1_0
+#define NCI_VERSION                 NCI_VERSION_1_1
 #endif
 
 /* TRUE I2C patch is needed */
